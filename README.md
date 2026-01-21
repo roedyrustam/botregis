@@ -1,26 +1,33 @@
 # BotRegis: Enterprise Registration Suite 🚀
 
-Suite otomatisasi registrasi enterprise-grade berbasis Node.js dengan Playwright, Mail.tm, dan Socket.io.
+Suite otomatisasi registrasi enterprise-grade dengan auto-detection, multi-browser, dan stealth mode.
 
 ## Fitur Unggulan
 
-### Core Features
-- ⚡ **Parallel Execution** - Concurrency control untuk registrasi masal
-- 🛡️ **Proxy Support** - HTTP/S proxy dengan autentikasi
-- 📊 **Real-time Stats** - Monitor success/failure di dashboard
-- 📂 **CSV Export** - Ekspor akun terdaftar
+### 🧠 Smart Auto-Detection
+Bot otomatis mendeteksi **7 field** tanpa input manual:
+- Email, Password, Confirm Password
+- Name/Username, WhatsApp/Phone
+- Terms Checkbox, Submit Button
 
-### Intelligence
-- 🧠 **Auto-Detect Fields** - Deteksi otomatis form email/password/name
-- 🎯 **Custom Regex** - Pattern kustom untuk kode verifikasi
-- 🔄 **Auto-Retry** - Retry otomatis dengan configurable max attempts
-- 🕵️ **Stealth Mode** - Human-like typing, mouse movements, fingerprint spoofing
+### 🌐 Multi-Browser Support
+Pilih browser: Chromium, Firefox, atau WebKit
 
-### Automation
-- 📦 **Site Templates** - Template siap pakai (Discord, Twitter, Generic)
-- 🧩 **Presets** - Simpan & muat konfigurasi
-- ⏰ **Scheduling** - Jadwalkan registrasi untuk waktu tertentu
-- 📸 **Screenshots** - Auto-capture setiap stage untuk debugging
+### 🕵️ Stealth Mode
+Human-like typing, random mouse movements, fingerprint spoofing
+
+### ⚡ Performance
+- Parallel execution (concurrency)
+- Auto-retry dengan max attempts
+- Scheduled registrations
+
+### 📦 Site Templates
+8 template siap pakai: Generic, Discord, Twitter, T4JamTools, Orderan.id, Yotoko, BelajarKoding, dll
+
+### 📣 Integrations
+- Webhook notifications (Discord/Slack)
+- CSV export
+- Custom user agent
 
 ## Quick Start
 
@@ -34,18 +41,29 @@ Buka `http://localhost:3000`
 
 | Endpoint | Method | Deskripsi |
 | :--- | :--- | :--- |
-| `/api/start` | POST | Mulai batch registrasi |
+| `/api/start` | POST | Mulai batch |
 | `/api/stop` | POST | Stop batch |
 | `/api/accounts` | GET | Daftar akun |
 | `/api/export` | GET | Download CSV |
 | `/api/templates` | GET | Site templates |
 | `/api/presets` | GET/POST | Manage presets |
 | `/api/schedule` | POST | Jadwalkan job |
-| `/api/scheduled` | GET | Lihat scheduled jobs |
-| `/api/test-selectors` | POST | Test validitas selectors |
-| `/api/stats` | GET | Statistik sukses/gagal |
+| `/api/test-selectors` | POST | Test selectors |
+| `/api/stats` | GET | Statistik |
 
-## Struktur Proyek
+## Auto-Detection Fields
+
+| Field | Selectors |
+| :--- | :--- |
+| Email | `input[type="email"]`, `input[name*="email"]` |
+| Password | `input[type="password"]:first-of-type` |
+| Confirm Pass | `input[name="password2"]`, `input[name="password_confirmation"]` |
+| Name | `input[name="name"]`, `input[name*="username"]` |
+| WhatsApp | `input[type="tel"]`, `input[name*="phone"]` |
+| Terms | `input[type="checkbox"]` |
+| Submit | `button[type="submit"]`, `button:has-text("Daftar")` |
+
+## Struktur
 
 ```
 botregis/
@@ -53,16 +71,9 @@ botregis/
 ├── index.js            # Registration orchestrator
 ├── registerBot.js      # Playwright automation
 ├── emailService.js     # Mail.tm integration
-├── templates.json      # Site templates
-├── screenshots/        # Auto-captured screenshots
+├── templates.json      # 8 site templates
 └── public/             # Web dashboard
 ```
-
-## Troubleshooting
-
-- **Selector Error**: Gunakan tombol "Test Selectors" sebelum running
-- **Rate Limit**: Auto-retry sudah built-in
-- **Debugging**: Cek folder `screenshots/` untuk visual log
 
 ## Lisensi
 ISC
