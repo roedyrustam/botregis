@@ -250,6 +250,13 @@ class RegisterBot {
 
             await this.humanType(selectors.password, userData.password);
 
+            // Fill Confirm Password if selector provided
+            if (selectors.confirmPassword) {
+                await this.humanMove();
+                console.log('Filling confirm password...');
+                await this.humanType(selectors.confirmPassword, userData.password);
+            }
+
             // Fill WhatsApp number if selector provided
             if (selectors.whatsapp) {
                 await this.humanMove();

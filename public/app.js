@@ -15,6 +15,7 @@ const selPassInput = document.getElementById('sel-pass');
 const selSubmitInput = document.getElementById('sel-submit');
 const selCodeInput = document.getElementById('sel-code');
 const selVerifyInput = document.getElementById('sel-verify');
+const selConfirmPassInput = document.getElementById('sel-confirm-pass');
 const accountCountInput = document.getElementById('accountCount');
 const selWhatsappInput = document.getElementById('sel-whatsapp');
 const selTermsInput = document.getElementById('sel-terms');
@@ -182,7 +183,8 @@ async function startRegistration() {
             verificationCode: selCodeInput.value,
             verificationSubmit: selVerifyInput.value,
             whatsapp: selWhatsappInput.value,
-            terms: selTermsInput.value
+            terms: selTermsInput.value,
+            confirmPassword: selConfirmPassInput.value
         },
         verificationPattern: patternInput.value,
         captchaConfig: {

@@ -44,5 +44,46 @@
             "submit": "button[type='submit'], input[type='submit'], .submit-btn"
         },
         "verificationPattern": "\\d{4,8}"
+    },
+    {
+        "name": "T4JamTools",
+        "targetUrl": "https://t4jamtools.com/register/",
+        "selectors": {
+            "name": "input[name='name'], input[name='username'], input[id*='name']",
+            "email": "input[type='email'], input[name='email'], input[id*='email']",
+            "password": "input[name='password1'], input[name='password'], input[id*='password']",
+            "confirmPassword": "input[name='password2'], input[name='confirm_password']",
+            "whatsapp": "input[name='phone'], input[name='whatsapp'], input[type='tel']",
+            "terms": "input[type='checkbox']",
+            "submit": "button[type='submit'], input[type='submit']"
+        },
+        "verificationPattern": "\\d{6}"
+    },
+    {
+        "name": "Orderan.id",
+        "targetUrl": "https://app.orderan.id/auth/register",
+        "selectors": {
+            "name": "input[name='name']",
+            "email": "input[name='email'], input[type='email']",
+            "password": "input[name='password'], input[type='password']",
+            "whatsapp": "input[name='phone'], input[type='tel']",
+            "terms": "input[type='checkbox']",
+            "submit": "button[type='submit']"
+        },
+        "verificationPattern": "\\d{6}"
+    },
+    {
+        "name": "Yotoko",
+        "targetUrl": "https://yotoko.id/auth/sign-up",
+        "selectors": {
+            "name": "input[name='name']",
+            "email": "input[name='email'], input[type='email']",
+            "password": "input[name='password'], input[type='password']",
+            "confirmPassword": "input[name='confirmPassword'], input[name='password_confirmation']",
+            "whatsapp": "input[name='phone'], input[type='tel']",
+            "terms": "input[type='checkbox']",
+            "submit": "button[type='submit']"
+        },
+        "verificationPattern": "\\d{6}"
     }
 ]
