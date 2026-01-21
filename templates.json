@@ -85,5 +85,18 @@
             "submit": "button[type='submit']"
         },
         "verificationPattern": "\\d{6}"
+    },
+    {
+        "name": "BelajarKoding",
+        "targetUrl": "https://belajarkoding.com/signup",
+        "selectors": {
+            "name": "input[name='name'], input[name='username'], input[id*='name']",
+            "email": "input[type='email'], input[name='email'], input[id*='email']",
+            "password": "input[name='password'], input[type='password']",
+            "confirmPassword": "input[name='password_confirmation'], input[name='confirmPassword']",
+            "terms": "input[type='checkbox']",
+            "submit": "button[type='submit'], input[type='submit']"
+        },
+        "verificationPattern": "\\d{6}"
     }
 ]
