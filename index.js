@@ -138,7 +138,7 @@ async function main() {
     const accountCount = 1;
 
     const config = {
-        targetUrl: 'https://forgeon.io/register',
+        targetUrl: 'https://example.com/register',
         selectors: {
             name: 'input[name="name"]',
             email: 'input[name="email"]',
