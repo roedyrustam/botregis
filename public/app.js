@@ -27,6 +27,9 @@ const statSuccess = document.getElementById('stat-success');
 const statFailed = document.getElementById('stat-failed');
 const presetSelect = document.getElementById('preset-select');
 const savePresetBtn = document.getElementById('save-preset-btn');
+const headlessToggle = document.getElementById('headless-toggle');
+const autoDetectToggle = document.getElementById('auto-detect-toggle');
+const testBtn = document.getElementById('test-btn');
 
 let currentPresets = [];
 
@@ -179,7 +182,9 @@ async function startRegistration() {
             server: proxyServerInput.value,
             username: proxyUserInput.value,
             password: proxyPassInput.value
-        } : null
+        } : null,
+        headless: headlessToggle.checked,
+        autoDetect: autoDetectToggle.checked
     };
 
     const count = parseInt(accountCountInput.value) || 1;
@@ -234,6 +239,54 @@ stopBtn.addEventListener('click', stopRegistration);
 exportBtn.addEventListener('click', exportAccounts);
 savePresetBtn.addEventListener('click', savePreset);
 presetSelect.addEventListener('change', handlePresetSelection);
+
+// Test Selectors Function
+async function testSelectors() {
+    const selectors = {
+        name: selNameInput.value,
+        email: selEmailInput.value,
+        password: selPassInput.value,
+        submit: selSubmitInput.value
+    };
+
+    addLog('Testing selectors...', 'info');
+    testBtn.disabled = true;
+    testBtn.textContent = 'Testing...';
+
+    try {
+        const response = await fetch('/api/test-selectors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                targetUrl: targetUrlInput.value,
+                selectors
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            addLog('=== Selector Test Results ===', 'success');
+            for (const [key, val] of Object.entries(result.results)) {
+                const status = val.valid ? '✓ VALID' : '✗ NOT FOUND';
+                addLog(`${key}: ${status}`, val.valid ? 'success' : 'error');
+            }
+            addLog('=== Auto-Detected Fields ===', 'info');
+            for (const [key, val] of Object.entries(result.autoDetected)) {
+                if (val) addLog(`${key}: ${val}`, 'process');
+            }
+        } else {
+            addLog(`Test failed: ${result.error}`, 'error');
+        }
+    } catch (error) {
+        addLog(`Test error: ${error.message}`, 'error');
+    } finally {
+        testBtn.disabled = false;
+        testBtn.textContent = 'Test Selectors';
+    }
+}
+
+testBtn.addEventListener('click', testSelectors);
 
 // Init
 loadAccounts();

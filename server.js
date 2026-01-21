@@ -89,6 +89,37 @@ app.get('/api/stats', (req, res) => {
     res.json(stats);
 });
 
+// Selector Testing Endpoint
+app.post('/api/test-selectors', async (req, res) => {
+    const { targetUrl, selectors } = req.body;
+
+    if (!targetUrl) {
+        return res.status(400).json({ error: 'Target URL is required' });
+    }
+
+    const RegisterBot = require('./registerBot');
+    const bot = new RegisterBot({ targetUrl, selectors, headless: true });
+
+    try {
+        await bot.init();
+        await bot.page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+
+        const results = await bot.testSelectors(selectors);
+        const detected = await bot.detectFormFields();
+
+        await bot.close();
+
+        res.json({
+            results,
+            autoDetected: detected,
+            message: 'Selector test completed'
+        });
+    } catch (error) {
+        await bot.close().catch(() => { });
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/stop', (req, res) => {
     if (botRunning && botAbortController) {
         botAbortController.abort();

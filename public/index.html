@@ -50,6 +50,18 @@
                         <label>Verification Pattern (Regex)</label>
                         <input type="text" id="sel-pattern" value="\\d{6}" placeholder="\\d{6}">
                     </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="headless-toggle">
+                            Run Headless (Invisible Browser)
+                        </label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="auto-detect-toggle" checked>
+                            Auto-Detect Form Fields
+                        </label>
+                    </div>
                 </div>
                 <div class="selectors-grid">
                     <div class="form-group">
@@ -115,6 +127,7 @@
                     </div>
                     <button id="start-btn" class="primary-btn">Mulai Registrasi</button>
                     <button id="stop-btn" class="danger-btn" style="display: none;">Stop</button>
+                    <button id="test-btn" class="secondary-btn">Test Selectors</button>
                 </div>
             </section>
 
