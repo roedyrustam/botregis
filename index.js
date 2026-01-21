@@ -70,27 +70,53 @@ async function registerOneAccount(config, userData, logCallback, proxy) {
         const verificationEmail = await emailService.waitForEmail((content) => {
             const lowText = content.text?.toLowerCase() || '';
             const lowSub = content.subject?.toLowerCase() || '';
-            return lowSub.includes('verification') ||
-                lowSub.includes('code') ||
-                lowSub.includes('verify') ||
-                lowText.includes('verification') ||
-                lowText.includes('code') ||
-                lowText.includes('verify');
+            const lowHtml = content.html?.toLowerCase() || '';
+            // Expanded keywords for better detection
+            const keywords = ['verification', 'code', 'verify', 'otp', 'aktivasi', 'kode', 'konfirmasi', 'confirm', 'pin', 'token'];
+            return keywords.some(kw => lowSub.includes(kw) || lowText.includes(kw) || lowHtml.includes(kw));
         });
 
         log(`Verification email received: ${verificationEmail.subject}`);
 
-        // 4. Extract Code (Configurable Pattern)
-        let pattern;
-        try {
-            pattern = new RegExp(config.verificationPattern || '\\d{6}');
-        } catch (e) {
-            log(`Invalid regex pattern: ${config.verificationPattern}. Falling back to default.`);
-            pattern = /\d{6}/;
+        // 4. Extract Code with Multiple Patterns
+        const emailContent = verificationEmail.text || verificationEmail.html || '';
+        let code = null;
+
+        // Try custom pattern first
+        if (config.verificationPattern) {
+            try {
+                const customPattern = new RegExp(config.verificationPattern);
+                const customMatch = emailContent.match(customPattern);
+                if (customMatch) {
+                    code = customMatch[0].replace(/\D/g, '') || customMatch[0];
+                }
+            } catch (e) {
+                log(`Invalid custom regex pattern: ${config.verificationPattern}`);
+            }
         }
-        const codeMatch = (verificationEmail.text || verificationEmail.html).match(pattern);
-        if (codeMatch) {
-            const code = codeMatch[0].match(/\d+/)?.[0] || codeMatch[0]; // Prefer digits if nested
+
+        // Fallback patterns if custom pattern fails
+        if (!code) {
+            const patterns = [
+                /\b\d{6}\b/,           // 6-digit code
+                /\b\d{4}\b/,           // 4-digit code
+                /\b\d{8}\b/,           // 8-digit code
+                /code[:\s]*(\d+)/i,    // "code: 123456"
+                /otp[:\s]*(\d+)/i,     // "OTP: 123456"
+                /kode[:\s]*(\d+)/i,    // "kode: 123456"
+                /pin[:\s]*(\d+)/i,     // "PIN: 1234"
+            ];
+
+            for (const pattern of patterns) {
+                const match = emailContent.match(pattern);
+                if (match) {
+                    code = match[1] || match[0].replace(/\D/g, '');
+                    if (code && code.length >= 4) break;
+                }
+            }
+        }
+
+        if (code) {
             log(`Extracted code: ${code}`);
 
             // 5. Submit code
@@ -101,8 +127,11 @@ async function registerOneAccount(config, userData, logCallback, proxy) {
             log('Registration and verification complete!');
             return true;
         } else {
-            log('No 6-digit numeric code found in email. Check the extraction logic.');
-            return false;
+            log(`No verification code found in email. Content preview: ${emailContent.substring(0, 200)}...`);
+            // Still save the account since registration succeeded
+            await saveAccount({ email: userData.email, password: userData.password, verified: false });
+            log('Account registered but verification code extraction failed. Saved anyway.');
+            return true;
         }
     } catch (error) {
         log(`Registration failed: ${error.message}`);

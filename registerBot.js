@@ -120,14 +120,23 @@ class RegisterBot {
         return prefix + suffix;
     }
 
-    // Screenshot capture for debugging
+    // Screenshot capture for debugging (with error safety)
     async captureScreenshot(stage) {
-        const timestamp = Date.now();
-        const filename = `${stage}_${timestamp}.png`;
-        const filepath = path.join(this.screenshotDir, filename);
-        await this.page.screenshot({ path: filepath, fullPage: true });
-        console.log(`Screenshot saved: ${filename}`);
-        return filepath;
+        try {
+            if (!this.page || this.page.isClosed()) {
+                console.log(`Cannot capture screenshot: page is closed`);
+                return null;
+            }
+            const timestamp = Date.now();
+            const filename = `${stage}_${timestamp}.png`;
+            const filepath = path.join(this.screenshotDir, filename);
+            await this.page.screenshot({ path: filepath, fullPage: true });
+            console.log(`Screenshot saved: ${filename}`);
+            return filepath;
+        } catch (error) {
+            console.log(`Screenshot failed: ${error.message}`);
+            return null;
+        }
     }
 
     // Smart Form Auto-Detection
@@ -324,8 +333,15 @@ class RegisterBot {
     }
 
     async close() {
-        if (this.browser) {
-            await this.browser.close();
+        try {
+            if (this.browser) {
+                await this.browser.close();
+                this.browser = null;
+                this.page = null;
+                this.context = null;
+            }
+        } catch (error) {
+            console.log(`Browser close error (ignored): ${error.message}`);
         }
     }
 }
