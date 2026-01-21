@@ -1,0 +1,48 @@
+[
+    {
+        "name": "Generic Form",
+        "targetUrl": "",
+        "selectors": {
+            "name": "input[name='name'], input[id*='name']",
+            "email": "input[type='email'], input[name*='email']",
+            "password": "input[type='password']",
+            "submit": "button[type='submit'], input[type='submit']",
+            "verificationCode": "input[name='code'], input[id*='code']",
+            "verificationSubmit": "button[type='submit']"
+        },
+        "verificationPattern": "\\d{6}"
+    },
+    {
+        "name": "Discord-Style",
+        "targetUrl": "https://discord.com/register",
+        "selectors": {
+            "email": "input[name='email']",
+            "username": "input[name='username']",
+            "password": "input[name='password']",
+            "submit": "button[type='submit']"
+        },
+        "verificationPattern": "\\d{6}"
+    },
+    {
+        "name": "Twitter/X-Style",
+        "targetUrl": "https://twitter.com/i/flow/signup",
+        "selectors": {
+            "name": "input[name='name']",
+            "email": "input[name='email']",
+            "password": "input[name='password']",
+            "submit": "div[role='button'][data-testid='next']"
+        },
+        "verificationPattern": "\\d{6}"
+    },
+    {
+        "name": "Standard Registration",
+        "targetUrl": "",
+        "selectors": {
+            "name": "input[name='name'], #name, #username",
+            "email": "input[type='email'], input[name='email'], #email",
+            "password": "input[type='password'], input[name='password'], #password",
+            "submit": "button[type='submit'], input[type='submit'], .submit-btn"
+        },
+        "verificationPattern": "\\d{4,8}"
+    }
+]

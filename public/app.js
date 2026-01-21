@@ -16,6 +16,8 @@ const selSubmitInput = document.getElementById('sel-submit');
 const selCodeInput = document.getElementById('sel-code');
 const selVerifyInput = document.getElementById('sel-verify');
 const accountCountInput = document.getElementById('accountCount');
+const selWhatsappInput = document.getElementById('sel-whatsapp');
+const selTermsInput = document.getElementById('sel-terms');
 const proxyServerInput = document.getElementById('proxy-server');
 const proxyUserInput = document.getElementById('proxy-user');
 const proxyPassInput = document.getElementById('proxy-pass');
@@ -30,8 +32,11 @@ const savePresetBtn = document.getElementById('save-preset-btn');
 const headlessToggle = document.getElementById('headless-toggle');
 const autoDetectToggle = document.getElementById('auto-detect-toggle');
 const testBtn = document.getElementById('test-btn');
+const templateSelect = document.getElementById('template-select');
+const maxRetriesInput = document.getElementById('max-retries');
 
 let currentPresets = [];
+let currentTemplates = [];
 
 // Socket Events
 socket.on('log', (data) => {
@@ -172,7 +177,9 @@ async function startRegistration() {
             password: selPassInput.value,
             submit: selSubmitInput.value,
             verificationCode: selCodeInput.value,
-            verificationSubmit: selVerifyInput.value
+            verificationSubmit: selVerifyInput.value,
+            whatsapp: selWhatsappInput.value,
+            terms: selTermsInput.value
         },
         verificationPattern: patternInput.value,
         captchaConfig: {
@@ -184,7 +191,8 @@ async function startRegistration() {
             password: proxyPassInput.value
         } : null,
         headless: headlessToggle.checked,
-        autoDetect: autoDetectToggle.checked
+        autoDetect: autoDetectToggle.checked,
+        maxRetries: parseInt(maxRetriesInput.value) || 2
     };
 
     const count = parseInt(accountCountInput.value) || 1;
@@ -288,9 +296,51 @@ async function testSelectors() {
 
 testBtn.addEventListener('click', testSelectors);
 
+// Template Functions
+async function loadTemplates() {
+    try {
+        const response = await fetch('/api/templates');
+        currentTemplates = await response.json();
+
+        templateSelect.innerHTML = '<option value="">-- Select Template --</option>';
+        currentTemplates.forEach((template, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.textContent = template.name;
+            templateSelect.appendChild(opt);
+        });
+    } catch (error) {
+        console.error('Failed to load templates:', error);
+    }
+}
+
+function handleTemplateSelection() {
+    const index = templateSelect.value;
+    if (index === '') return;
+
+    const template = currentTemplates[index];
+    if (template) {
+        if (template.targetUrl) targetUrlInput.value = template.targetUrl;
+        if (template.selectors) {
+            selNameInput.value = template.selectors.name || template.selectors.username || '';
+            selEmailInput.value = template.selectors.email || '';
+            selPassInput.value = template.selectors.password || '';
+            selSubmitInput.value = template.selectors.submit || '';
+            selCodeInput.value = template.selectors.verificationCode || '';
+            selVerifyInput.value = template.selectors.verificationSubmit || '';
+        }
+        if (template.verificationPattern) patternInput.value = template.verificationPattern;
+
+        addLog(`Template "${template.name}" loaded successfully!`, 'success');
+    }
+}
+
+templateSelect.addEventListener('change', handleTemplateSelection);
+
 // Init
 loadAccounts();
 loadPresets();
+loadTemplates();
 
 // Initial stats load
 fetch('/api/stats').then(r => r.json()).then(updateStats);

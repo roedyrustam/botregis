@@ -96,6 +96,14 @@ class RegisterBot {
         await this.page.mouse.move(x, y, { steps: 10 + Math.floor(Math.random() * 20) });
     }
 
+    // Generate random WhatsApp number
+    generateWhatsAppNumber() {
+        const prefixes = ['0812', '0813', '0821', '0822', '0852', '0853', '0857', '0858'];
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const suffix = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+        return prefix + suffix;
+    }
+
     // Screenshot capture for debugging
     async captureScreenshot(stage) {
         const timestamp = Date.now();
@@ -225,6 +233,22 @@ class RegisterBot {
             await this.humanMove();
 
             await this.humanType(selectors.password, userData.password);
+
+            // Fill WhatsApp number if selector provided
+            if (selectors.whatsapp) {
+                await this.humanMove();
+                const whatsappNumber = userData.whatsapp || this.generateWhatsAppNumber();
+                console.log(`Filling WhatsApp: ${whatsappNumber}`);
+                await this.humanType(selectors.whatsapp, whatsappNumber);
+            }
+
+            // Click Terms checkbox if selector provided
+            if (selectors.terms) {
+                await this.humanMove();
+                console.log('Clicking terms checkbox...');
+                await this.page.click(selectors.terms);
+                await this.page.waitForTimeout(300);
+            }
 
             await this.captureScreenshot('02_form_filled');
 

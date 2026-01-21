@@ -90,9 +90,10 @@ async function registerOneAccount(config, userData, logCallback, proxy) {
 }
 
 async function batchRegister(config, count, logCallback, concurrency, signal) {
-    const results = { success: 0, failed: 0 };
+    const results = { success: 0, failed: 0, retried: 0 };
     let completedCount = 0;
     let startedCount = 0;
+    const maxRetries = config.maxRetries || 2;
 
     const worker = async () => {
         while (startedCount < count) {
@@ -102,11 +103,26 @@ async function batchRegister(config, count, logCallback, concurrency, signal) {
             if (logCallback) logCallback(`\n--- Starting Account ${index + 1}/${count} ---`);
 
             const userData = {
-                name: `User Bot ${Math.floor(Math.random() * 1000)}`,
+                name: generateRealisticName(),
                 password: `Pass${Math.random().toString(36).substring(2, 10)}!`,
             };
 
-            const success = await registerOneAccount(config, userData, logCallback, config.proxy);
+            let success = false;
+            let attempts = 0;
+
+            // Retry loop
+            while (!success && attempts <= maxRetries) {
+                if (attempts > 0) {
+                    results.retried++;
+                    if (logCallback) logCallback(`Retry ${attempts}/${maxRetries} for account ${index + 1}...`);
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                }
+
+                success = await registerOneAccount(config, userData, logCallback, config.proxy);
+                attempts++;
+
+                if (signal?.aborted) return;
+            }
 
             if (success) results.success++;
             else results.failed++;
@@ -116,9 +132,6 @@ async function batchRegister(config, count, logCallback, concurrency, signal) {
             if (signal?.aborted) return;
 
             if (startedCount < count && index < count - 1) {
-                // Sequential delay within one worker if we want to be safe, 
-                // but if we have concurrency we might skip this or reduce it.
-                // For now, keep a small 5s delay between starts in the SAME worker
                 await new Promise(resolve => setTimeout(resolve, 5000));
             }
         }

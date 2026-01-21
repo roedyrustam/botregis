@@ -20,8 +20,23 @@ let stats = {
     total: 0,
     success: 0,
     failed: 0,
-    history: [] // Last 10 batches
+    history: []
 };
+let scheduledJobs = [];
+
+// Template Endpoint
+app.get('/api/templates', (req, res) => {
+    const filePath = path.join(__dirname, 'templates.json');
+    if (fs.existsSync(filePath)) {
+        try {
+            res.json(JSON.parse(fs.readFileSync(filePath, 'utf8')));
+        } catch (e) {
+            res.json([]);
+        }
+    } else {
+        res.json([]);
+    }
+});
 
 // API Endpoints
 app.get('/api/accounts', (req, res) => {
@@ -204,7 +219,83 @@ app.post('/api/presets', (req, res) => {
 });
 
 app.get('/api/status', (req, res) => {
-    res.json({ running: botRunning });
+    res.json({ running: botRunning, scheduledJobs: scheduledJobs.length });
+});
+
+// Schedule Registration
+app.post('/api/schedule', (req, res) => {
+    const { config, count, concurrency, scheduledTime } = req.body;
+
+    if (!scheduledTime) {
+        return res.status(400).json({ error: 'Scheduled time is required' });
+    }
+
+    const executeTime = new Date(scheduledTime).getTime();
+    const now = Date.now();
+
+    if (executeTime <= now) {
+        return res.status(400).json({ error: 'Scheduled time must be in the future' });
+    }
+
+    const delay = executeTime - now;
+    const jobId = Date.now().toString();
+
+    const job = {
+        id: jobId,
+        config,
+        count,
+        concurrency,
+        scheduledTime,
+        status: 'pending'
+    };
+
+    scheduledJobs.push(job);
+
+    setTimeout(async () => {
+        const jobIndex = scheduledJobs.findIndex(j => j.id === jobId);
+        if (jobIndex === -1) return; // Job was cancelled
+
+        scheduledJobs[jobIndex].status = 'running';
+        io.emit('log', { message: `--- Scheduled Job ${jobId} Starting ---`, type: 'info' });
+
+        botRunning = true;
+        botAbortController = new AbortController();
+        io.emit('status', { running: true });
+
+        try {
+            await batchRegister(config, count, (msg) => {
+                io.emit('log', { message: msg, type: 'process' });
+            }, concurrency || 1, botAbortController.signal);
+
+            scheduledJobs[jobIndex].status = 'completed';
+            io.emit('log', { message: `--- Scheduled Job ${jobId} Completed ---`, type: 'success' });
+        } catch (error) {
+            scheduledJobs[jobIndex].status = 'failed';
+            io.emit('log', { message: `Scheduled Job Failed: ${error.message}`, type: 'error' });
+        } finally {
+            botRunning = false;
+            botAbortController = null;
+            io.emit('status', { running: false });
+        }
+    }, delay);
+
+    res.json({ message: `Job scheduled for ${scheduledTime}`, jobId });
+});
+
+// Get Scheduled Jobs
+app.get('/api/scheduled', (req, res) => {
+    res.json(scheduledJobs);
+});
+
+// Cancel Scheduled Job
+app.delete('/api/schedule/:id', (req, res) => {
+    const index = scheduledJobs.findIndex(j => j.id === req.params.id);
+    if (index !== -1 && scheduledJobs[index].status === 'pending') {
+        scheduledJobs.splice(index, 1);
+        res.json({ message: 'Job cancelled' });
+    } else {
+        res.status(404).json({ error: 'Job not found or already running' });
+    }
 });
 
 // Socket logic
