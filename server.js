@@ -4,6 +4,20 @@ const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const { batchRegister } = require('./index');
+const axios = require('axios');
+
+// Webhook notification function
+async function sendWebhook(url, data) {
+    if (!url) return;
+    try {
+        await axios.post(url, {
+            content: `📊 **BotRegis Completed**\n✅ Success: ${data.success}\n❌ Failed: ${data.failed}\n⏱️ Time: ${new Date().toLocaleString()}`
+        }, { timeout: 10000 });
+        console.log('Webhook sent successfully');
+    } catch (error) {
+        console.log('Webhook failed:', error.message);
+    }
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -90,6 +104,11 @@ app.post('/api/start', async (req, res) => {
             io.emit('log', { message: '--- Batch Stopped by User ---', type: 'error' });
         } else {
             io.emit('log', { message: '--- Batch Completed ---', type: 'success' });
+            // Send webhook notification
+            if (config.webhookUrl) {
+                sendWebhook(config.webhookUrl, batchResults);
+                io.emit('log', { message: 'Webhook notification sent!', type: 'info' });
+            }
         }
     } catch (error) {
         io.emit('log', { message: `Fatal Error: ${error.message}`, type: 'error' });

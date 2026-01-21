@@ -34,6 +34,9 @@ const autoDetectToggle = document.getElementById('auto-detect-toggle');
 const testBtn = document.getElementById('test-btn');
 const templateSelect = document.getElementById('template-select');
 const maxRetriesInput = document.getElementById('max-retries');
+const browserTypeSelect = document.getElementById('browser-type');
+const webhookUrlInput = document.getElementById('webhook-url');
+const customUaInput = document.getElementById('custom-ua');
 
 let currentPresets = [];
 let currentTemplates = [];
@@ -192,7 +195,10 @@ async function startRegistration() {
         } : null,
         headless: headlessToggle.checked,
         autoDetect: autoDetectToggle.checked,
-        maxRetries: parseInt(maxRetriesInput.value) || 2
+        maxRetries: parseInt(maxRetriesInput.value) || 2,
+        browserType: browserTypeSelect.value,
+        webhookUrl: webhookUrlInput.value,
+        customUserAgent: customUaInput.value || null
     };
 
     const count = parseInt(accountCountInput.value) || 1;

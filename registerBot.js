@@ -1,4 +1,4 @@
-const { chromium } = require('playwright');
+const { chromium, firefox, webkit } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 
@@ -36,7 +36,20 @@ class RegisterBot {
             };
         }
 
-        this.browser = await chromium.launch(launchOptions);
+        // Multi-browser support
+        const browserType = this.config.browserType || 'chromium';
+        console.log(`Launching ${browserType} browser...`);
+
+        switch (browserType) {
+            case 'firefox':
+                this.browser = await firefox.launch(launchOptions);
+                break;
+            case 'webkit':
+                this.browser = await webkit.launch(launchOptions);
+                break;
+            default:
+                this.browser = await chromium.launch(launchOptions);
+        }
 
         // Enhanced Stealth: More realistic browser fingerprint
         const userAgents = [
@@ -44,10 +57,13 @@ class RegisterBot {
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
         ];
-        const randomUA = userAgents[Math.floor(Math.random() * userAgents.length)];
+
+        // Use custom user agent if provided, otherwise random
+        const userAgent = this.config.customUserAgent || userAgents[Math.floor(Math.random() * userAgents.length)];
+        console.log(`Using User-Agent: ${userAgent.substring(0, 50)}...`);
 
         this.context = await this.browser.newContext({
-            userAgent: randomUA,
+            userAgent: userAgent,
             viewport: { width: 1366 + Math.floor(Math.random() * 200), height: 768 + Math.floor(Math.random() * 150) },
             deviceScaleFactor: 1,
             locale: 'en-US',
