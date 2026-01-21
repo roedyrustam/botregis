@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotRegis - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-mode">
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <h1>Bot<span>Regis</span></h1>
+                <p>Otomatisasi Registrasi Terintegrasi</p>
+            </div>
+            <div class="header-right">
+                <div id="stats-summary" class="stats-summary">
+                    <div class="stat-item">Success: <span id="stat-success">0</span></div>
+                    <div class="stat-item">Failed: <span id="stat-failed">0</span></div>
+                </div>
+                <div id="status-badge" class="badge">Idle</div>
+            </div>
+        </header>
+
+        <main>
+            <section class="config-section card">
+                <div class="section-header">
+                    <h2>Konfigurasi Bot</h2>
+                    <div class="preset-controls">
+                        <select id="preset-select">
+                            <option value="">-- Load Preset --</option>
+                        </select>
+                        <button id="save-preset-btn" class="secondary-btn">Save</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="targetUrl">Target URL</label>
+                    <input type="text" id="targetUrl" value="https://forgeon.io/register"
+                        placeholder="https://website.com/register">
+                </div>
+
+                <div class="advanced-grid">
+                    <div class="form-group">
+                        <label>Verification Pattern (Regex)</label>
+                        <input type="text" id="sel-pattern" value="\\d{6}" placeholder="\\d{6}">
+                    </div>
+                </div>
+                <div class="selectors-grid">
+                    <div class="form-group">
+                        <label>Nama Selector</label>
+                        <input type="text" id="sel-name" value="input[name='mirandagulto']">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Selector</label>
+                        <input type="text" id="sel-email" value="input[name='cobasajsda']">
+                    </div>
+                    <div class="form-group">
+                        <label>Pass Selector</label>
+                        <input type="text" id="sel-pass" value="input[name='cobabsa']">
+                    </div>
+                    <div class="form-group">
+                        <label>Submit Button</label>
+                        <input type="text" id="sel-submit" value="button[type='submit']">
+                    </div>
+                    <div class="form-group">
+                        <label>Code Selector</label>
+                        <input type="text" id="sel-code" value="input[name='code']">
+                    </div>
+                    <div class="form-group">
+                        <label>Verify Button</label>
+                        <input type="text" id="sel-verify" value="button#verify-btn">
+                    </div>
+                </div>
+
+                <div class="proxy-section">
+                    <h3>Proxy Settings (Opsional)</h3>
+                    <div class="form-group">
+                        <label>Proxy Server</label>
+                        <input type="text" id="proxy-server" placeholder="http://proxy.com:8080">
+                    </div>
+                    <div class="proxy-auth-grid">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="proxy-user" placeholder="Username">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="proxy-pass" placeholder="Password">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="captcha-section">
+                    <h3>Captcha Solver (Opsional)</h3>
+                    <div class="form-group">
+                        <label>Captcha API Key (2Captcha)</label>
+                        <input type="password" id="captcha-key" placeholder="API Key">
+                    </div>
+                </div>
+
+                <div class="control-actions">
+                    <div class="form-group count-group">
+                        <label>Jumlah Akun</label>
+                        <input type="number" id="accountCount" value="1" min="1">
+                    </div>
+                    <div class="form-group count-group">
+                        <label>Concurrency</label>
+                        <input type="number" id="concurrency" value="1" min="1" max="5">
+                    </div>
+                    <button id="start-btn" class="primary-btn">Mulai Registrasi</button>
+                    <button id="stop-btn" class="danger-btn" style="display: none;">Stop</button>
+                </div>
+            </section>
+
+            <section class="log-section card">
+                <h2>Aktivitas Langsung</h2>
+                <div id="terminal" class="terminal">
+                    <div class="terminal-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                        <span class="title">bot-logs.log</span>
+                    </div>
+                    <div id="log-content" class="log-content">
+                        <p class="muted">Menunggu instruksi...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="accounts-section card">
+                <div class="section-header">
+                    <h2>Akun Tersimpan</h2>
+                    <button id="export-btn" class="secondary-btn">Export to CSV</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Password</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accounts-body">
+                            <!-- Data populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
