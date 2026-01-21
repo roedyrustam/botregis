@@ -144,7 +144,10 @@ class RegisterBot {
         const detected = {
             email: null,
             password: null,
+            confirmPassword: null,
             name: null,
+            whatsapp: null,
+            terms: null,
             submit: null
         };
 
@@ -163,16 +166,34 @@ class RegisterBot {
             }
         }
 
-        // Password detection heuristics
+        // Password detection heuristics (first password field)
         const passSelectors = [
-            'input[type="password"]',
-            'input[name*="password"]',
-            'input[id*="password"]',
-            'input[placeholder*="password" i]'
+            'input[type="password"]:first-of-type',
+            'input[name="password"]',
+            'input[name="password1"]',
+            'input[id="password"]'
         ];
         for (const sel of passSelectors) {
             if (await this.page.locator(sel).count() > 0) {
                 detected.password = sel;
+                break;
+            }
+        }
+
+        // Confirm Password detection (second password field or specific names)
+        const confirmPassSelectors = [
+            'input[name="password2"]',
+            'input[name="password_confirmation"]',
+            'input[name="confirmPassword"]',
+            'input[name="confirm_password"]',
+            'input[id*="confirm"]',
+            'input[placeholder*="confirm" i]',
+            'input[placeholder*="konfirmasi" i]',
+            'input[type="password"]:nth-of-type(2)'
+        ];
+        for (const sel of confirmPassSelectors) {
+            if (await this.page.locator(sel).count() > 0) {
+                detected.confirmPassword = sel;
                 break;
             }
         }
@@ -192,6 +213,38 @@ class RegisterBot {
             }
         }
 
+        // WhatsApp/Phone detection
+        const phoneSelectors = [
+            'input[type="tel"]',
+            'input[name*="phone"]',
+            'input[name*="whatsapp"]',
+            'input[name*="hp"]',
+            'input[id*="phone"]',
+            'input[placeholder*="phone" i]',
+            'input[placeholder*="whatsapp" i]'
+        ];
+        for (const sel of phoneSelectors) {
+            if (await this.page.locator(sel).count() > 0) {
+                detected.whatsapp = sel;
+                break;
+            }
+        }
+
+        // Terms checkbox detection
+        const termsSelectors = [
+            'input[type="checkbox"][name*="term"]',
+            'input[type="checkbox"][name*="agree"]',
+            'input[type="checkbox"][id*="term"]',
+            'input[type="checkbox"][id*="agree"]',
+            'input[type="checkbox"]'
+        ];
+        for (const sel of termsSelectors) {
+            if (await this.page.locator(sel).count() > 0) {
+                detected.terms = sel;
+                break;
+            }
+        }
+
         // Submit button detection
         const submitSelectors = [
             'button[type="submit"]',
@@ -199,7 +252,8 @@ class RegisterBot {
             'button:has-text("Sign Up")',
             'button:has-text("Register")',
             'button:has-text("Create")',
-            'button:has-text("Submit")'
+            'button:has-text("Submit")',
+            'button:has-text("Daftar")'
         ];
         for (const sel of submitSelectors) {
             if (await this.page.locator(sel).count() > 0) {
