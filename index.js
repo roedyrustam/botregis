@@ -3,6 +3,29 @@ const RegisterBot = require('./registerBot');
 const fs = require('fs');
 const path = require('path');
 
+// Realistic Indonesian Name Generator
+const firstNames = [
+    'Andi', 'Budi', 'Citra', 'Dewi', 'Eka', 'Fajar', 'Galih', 'Hendra',
+    'Indra', 'Joko', 'Kusuma', 'Lestari', 'Mega', 'Nanda', 'Okta', 'Putri',
+    'Rini', 'Sari', 'Teguh', 'Utami', 'Vina', 'Wahyu', 'Yusuf', 'Zahra',
+    'Agus', 'Bambang', 'Cahya', 'Dimas', 'Endang', 'Fitri', 'Gunawan', 'Hani',
+    'Irwan', 'Joni', 'Kartika', 'Lukman', 'Maya', 'Nurul', 'Omar', 'Putra',
+    'Ratna', 'Surya', 'Tika', 'Udin', 'Vera', 'Wati', 'Yanto', 'Zaki'
+];
+
+const lastNames = [
+    'Pratama', 'Wijaya', 'Santoso', 'Kusuma', 'Hidayat', 'Saputra', 'Nugroho',
+    'Wibowo', 'Suryadi', 'Permana', 'Setiawan', 'Rahmawati', 'Susanto', 'Hartono',
+    'Yulianto', 'Kurniawan', 'Suharto', 'Budiman', 'Hermawan', 'Prasetyo',
+    'Wulandari', 'Purnama', 'Laksana', 'Mahendra', 'Adrianto', 'Firmansyah'
+];
+
+function generateRealisticName() {
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    return `${firstName} ${lastName}`;
+}
+
 async function saveAccount(account) {
     const filePath = path.join(__dirname, 'accounts.json');
     let accounts = [];
