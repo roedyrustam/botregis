@@ -13,6 +13,9 @@ BotRegis adalah suite otomatisasi registrasi high-performance berbasis Node.js. 
 - 📂 **Data Export**: Ekspor hasil registrasi ke dalam format CSV yang rapi.
 - 🕵️ **Stealth Mode**: Dilengkapi teknik bypass anti-bot dan dukungan Captcha solver hooks.
 
+> [!TIP]
+> **Penting**: Pastikan Selektor CSS (Nama, Email, Password, dll) sesuai dengan website target. Anda bisa mendapatkannya dengan klik kanan pada input field di browser -> **Inspect** -> temukan atribut `name` atau `id`.
+
 ## Persiapan
 
 - **Node.js**: Versi 16 atau lebih baru.
